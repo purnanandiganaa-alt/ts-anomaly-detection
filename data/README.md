@@ -1,64 +1,107 @@
-# Data Directory Guide
+# Dataset Guide
 
-This directory contains the dataset used for anomaly detection experiments.
+This directory contains all data required for the time-series anomaly detection project.
 
-Large datasets are not included in this repository and must be stored locally.
+The dataset consists of multivariate sensor time-series recordings used for training, validation, and testing of anomaly detection models.
+
+---
+
+## Overview
+
+The data is organized into raw inputs and processed outputs generated during feature engineering.
+
+- **Raw data**: Original sensor recordings (not modified)
+- **Processed data**: Feature-engineered datasets used for model training
+- **Artifacts**: Intermediate outputs generated during analysis and experimentation
 
 ---
 
 ## Directory Structure
 
+```text
 data/
-
 ├── raw/
 │   ├── train/
 │   ├── test/
 │   ├── val/
 │   └── val_labels/
 │
-└── processed/
+├── processed/
+└── artifacts/
+```
 
 ---
 
 ## Raw Data
 
-The `raw/` directory contains the original sensor data files.
+The `raw/` directory contains the original multivariate sensor time-series data.
 
+```text
 raw/
-
 ├── train/       (53 runs)
 ├── test/        (28 runs)
 ├── val/         (10 runs)
-└── val_labels/  (10 label files)
+└── val_labels/  (10 files)
+```
 
 ### Description
 
-- train/: Training runs used for feature engineering and model training.
-- test/: Unlabeled test runs used for final evaluation and submission generation.
-- val/: Validation runs used for threshold optimization and model evaluation.
-- val_labels/: Ground-truth anomaly labels corresponding to the validation runs.
+- **train/** → Used for model training and feature engineering  
+- **test/** → Unlabeled data used for final evaluation  
+- **val/** → Used for validation and threshold tuning  
+- **val_labels/** → Ground-truth labels for validation set  
 
 ---
 
 ## Processed Data
 
-The `processed/` directory contains datasets generated from the raw sensor data.
+The `processed/` directory contains datasets generated from raw sensor data after applying feature engineering and preprocessing pipelines.
 
-Examples include:
+These include:
 
-- Selected sensor datasets
-- Engineered feature datasets
-- Model-ready feature matrices
+- Engineered feature matrices
+- Sensor-selected datasets
+- Model-ready inputs
 
-These files are generated through the project pipeline and are not stored in GitHub.
+⚠️ These files are reproducible and can be regenerated using the feature engineering pipeline.
 
 ---
 
-## Reproducing Processed Data
+## Artifacts
 
-1. Place the original dataset files inside the appropriate `raw/` subdirectories.
-2. Run the feature engineering pipeline.
-3. Run the sensor selection pipeline.
-4. Execute model training notebooks or pipelines.
+The `artifacts/` directory contains intermediate outputs generated during experiments such as:
 
-The required processed datasets will be generated automatically.
+- Feature selection outputs
+- EDA results
+- Temporary analysis files
+
+These are not required to run the final pipeline but are useful for debugging and analysis.
+
+---
+
+## Data Reproducibility
+
+To regenerate processed data:
+
+1. Place raw dataset files inside `data/raw/`
+2. Run feature engineering pipeline:
+
+```bash
+python src/core/feature_engineering.py
+```
+
+3. Run feature selection pipeline if required:
+
+```bash
+python src/core/feature_selection.py
+```
+
+All processed datasets will be automatically generated.
+
+---
+
+## Notes
+
+- Raw datasets are not tracked in GitHub due to size constraints.
+- All datasets follow a reproducible pipeline-based workflow.
+- Ensure correct folder structure before running scripts.
