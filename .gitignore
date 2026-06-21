@@ -1,0 +1,37 @@
+# =====================
+# ENVIRONMENT
+# =====================
+ts-anomaly-env/
+venv/
+
+# =====================
+# PYTHON CACHE
+# =====================
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# =====================
+# DATA (DO NOT PUSH)
+# =====================
+data/raw/
+data/processed/
+
+# =====================
+# MODELS (OPTIONAL)
+# =====================
+*.pkl
+*.h5
+*.pt
+
+# =====================
+# OS FILES
+# =====================
+.DS_Store
+
+# =====================
+# LARGE OUTPUTS (OPTIONAL)
+# =====================
+outputs/tmp/
+# large processed artifacts
+data/artifacts/

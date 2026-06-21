@@ -1,0 +1,9 @@
+{
+    "roc_auc": 0.5850508419933359,
+    "precision": 0.3,
+    "recall": 0.83,
+    "f1": 0.44,
+    "best_threshold": -0.04780775828712125,
+    "validation_anomaly_rate": 0.6748,
+    "test_anomaly_rate": 0.8462
+}
