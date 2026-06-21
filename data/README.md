@@ -53,7 +53,42 @@ raw/
 
 ---
 
+## Processed Data
 
+The `processed/` directory contains datasets generated from raw sensor data after applying feature engineering and preprocessing pipelines.
+
+These include:
+
+- Engineered feature matrices
+- Sensor-selected datasets
+- Model-ready inputs
+
+⚠️ These files are reproducible and can be regenerated using the feature engineering pipeline.
+
+---
+
+
+
+To regenerate processed data:
+
+1. Place raw dataset files inside `data/raw/`
+2. Run feature engineering pipeline:
+
+```bash
+python src/core/feature_engineering.py
+```
+
+3. Run feature selection pipeline if required:
+
+```bash
+python src/core/feature_selection.py
+```
+
+All processed datasets will be automatically generated.
+
+---
+
+## Notes
 
 - Raw datasets are not tracked in GitHub due to size constraints.
 - All datasets follow a reproducible pipeline-based workflow.
