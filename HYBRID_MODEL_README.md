@@ -4,8 +4,6 @@
 
 #   HYBRID ANOMALY DETECTION (FINAL VERSION)
 
-```md
-
 # 1. PROJECT SUMMARY
 
 This project builds a hybrid anomaly detection system for multivariate time-series data.
@@ -221,10 +219,15 @@ Final anomaly score:
 ```
 
 Final Score =
-0.85 × CNN Score +
-0.15 × Isolation Forest Score
+CNN_WEIGHT × CNN Score +
+ISO_WEIGHT × Isolation Forest Score
 
 ```
+
+**Update:** `src/pipelines/run_hybrid.py` now sweeps `CNN_WEIGHT` over a small
+grid on the validation set and keeps whichever maximizes F1, instead of
+hardcoding 0.85/0.15. See section 14 and the main `README.md` for the current
+selected weight and results.
 
 ---
 
@@ -307,15 +310,18 @@ Combination improves robustness across anomaly types.
 
 # 14. IMPORTANT PARAMETERS
 
+All parameters now live in `src/config.py` (single source of truth):
+
 ```
 
 WINDOW_SIZE = 200
-STEP = 10
+STEP = 10          # train-time stride
+EVAL_STEP = 1      # val/test stride - scored densely, averaged per timestep
 BATCH_SIZE = 64
-EPOCHS = 10
+EPOCHS = 50        # restored from 10; see README "Future improvements"
 
-CNN_WEIGHT = 0.85
-ISO_WEIGHT = 0.15
+CNN_WEIGHT, ISO_WEIGHT   # chosen per-run by the validation weight sweep,
+                         # not fixed - see section 9
 
 ```
 
@@ -340,18 +346,24 @@ Contains:
 
 # 16. PERFORMANCE
 
-| Model | F1 Score |
-|------|----------|
-| Isolation Forest | ~0.40 |
-| CNN Autoencoder | ~0.60 |
-| Hybrid Model | ~0.62 |
+Original (window-level) vs. current (validation, per-timestep - see main
+`README.md` "Results" for the full table and methodology caveat):
+
+| Model | Original F1 | Current F1 |
+|------|----------|----------|
+| Isolation Forest (window-based) | ~0.40 | 0.491 |
+| CNN Autoencoder | ~0.60 | 0.408 |
+| Hybrid Model | ~0.62 | 0.494 |
 
 ---
 
 # 17. FUTURE IMPROVEMENTS
 
-- Learn weights automatically instead of fixed values
-- Use LSTM/Transformer instead of CNN
+- ~~Learn weights automatically instead of fixed values~~ — done via a
+  validation weight sweep (section 9); a learned (e.g. logistic regression)
+  combiner is still future work
+- Re-tune CNN epoch count against the per-timestep metric (see main README)
+- Use LSTM/Transformer or dilated convolutions instead of the current CNN
 - Use adaptive threshold per run
 - Add frequency-domain features
 - Use smoothing filter to reduce noise

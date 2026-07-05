@@ -101,6 +101,7 @@ stack-data==0.6.3
 terminado==0.18.1
 threadpoolctl==3.6.0
 tinycss2==1.5.1
+torch==2.12.1
 tornado==6.5.7
 traitlets==5.15.1
 typing_extensions==4.15.0
