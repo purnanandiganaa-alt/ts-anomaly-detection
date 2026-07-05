@@ -1,0 +1,864 @@
+{
+  "dataset_name": "lab_batch_distillation_task_02",
+  "split_name": "public_train_validation_test_package",
+  "feature_columns": [
+    "LS701",
+    "LS702",
+    "T701",
+    "T702",
+    "T703",
+    "T704",
+    "T706",
+    "T708",
+    "T709",
+    "T711",
+    "T712",
+    "T705",
+    "FT703",
+    "FT704",
+    "PDI701",
+    "PDI702",
+    "PY23",
+    "FYI702"
+  ],
+  "feature_descriptions": {
+    "LS701": "Fluid level in the reboiler vessel.",
+    "LS702": "Fluid level in the buffer vessel.",
+    "T701": "Temperature at the lower heating-jacket hemisphere of the reboiler.",
+    "T702": "Temperature at the upper heating-jacket hemisphere of the reboiler.",
+    "T703": "Liquid residue temperature in the reboiler vessel.",
+    "T704": "Temperature at the middle heating jacket.",
+    "T706": "Temperature at the bottom heating jacket.",
+    "T708": "Temperature at the top heating jacket.",
+    "T709": "Temperature sensor inside the distillation column.",
+    "T711": "Temperature sensor inside the distillation column.",
+    "T712": "Temperature sensor inside the distillation column.",
+    "T705": "Temperature sensor inside the distillation column.",
+    "FT703": "Product-stream mass-flow sensor.",
+    "FT704": "Reflux-stream mass-flow sensor.",
+    "PDI701": "Pressure difference along the distillation column.",
+    "PDI702": "Static pressure sensor in the buffer vessel.",
+    "PY23": "Pressure sensor in the distillation column.",
+    "FYI702": "Cooling-medium mass flow."
+  },
+  "dropped_columns": [],
+  "sampling_rate_hz": 1.0,
+  "operation_mode": "batch distillation",
+  "subset_description": "organizer-selected ternary batch-distillation subset",
+  "download_layout": {
+    "train_dir": "train",
+    "val_dir": "val",
+    "val_labels_dir": "val_labels",
+    "test_dir": "test"
+  },
+  "run_id_mapping": [
+    {
+      "run_id": 1,
+      "public_data_path": "test/series_001.csv",
+      "file_name": "series_001.csv"
+    },
+    {
+      "run_id": 2,
+      "public_data_path": "test/series_002.csv",
+      "file_name": "series_002.csv"
+    },
+    {
+      "run_id": 3,
+      "public_data_path": "test/series_003.csv",
+      "file_name": "series_003.csv"
+    },
+    {
+      "run_id": 4,
+      "public_data_path": "test/series_004.csv",
+      "file_name": "series_004.csv"
+    },
+    {
+      "run_id": 5,
+      "public_data_path": "test/series_005.csv",
+      "file_name": "series_005.csv"
+    },
+    {
+      "run_id": 6,
+      "public_data_path": "test/series_006.csv",
+      "file_name": "series_006.csv"
+    },
+    {
+      "run_id": 7,
+      "public_data_path": "test/series_007.csv",
+      "file_name": "series_007.csv"
+    },
+    {
+      "run_id": 8,
+      "public_data_path": "test/series_008.csv",
+      "file_name": "series_008.csv"
+    },
+    {
+      "run_id": 9,
+      "public_data_path": "test/series_009.csv",
+      "file_name": "series_009.csv"
+    },
+    {
+      "run_id": 10,
+      "public_data_path": "test/series_010.csv",
+      "file_name": "series_010.csv"
+    },
+    {
+      "run_id": 11,
+      "public_data_path": "test/series_011.csv",
+      "file_name": "series_011.csv"
+    },
+    {
+      "run_id": 12,
+      "public_data_path": "test/series_012.csv",
+      "file_name": "series_012.csv"
+    },
+    {
+      "run_id": 13,
+      "public_data_path": "test/series_013.csv",
+      "file_name": "series_013.csv"
+    },
+    {
+      "run_id": 14,
+      "public_data_path": "test/series_014.csv",
+      "file_name": "series_014.csv"
+    },
+    {
+      "run_id": 15,
+      "public_data_path": "test/series_015.csv",
+      "file_name": "series_015.csv"
+    },
+    {
+      "run_id": 16,
+      "public_data_path": "test/series_016.csv",
+      "file_name": "series_016.csv"
+    },
+    {
+      "run_id": 17,
+      "public_data_path": "test/series_017.csv",
+      "file_name": "series_017.csv"
+    },
+    {
+      "run_id": 18,
+      "public_data_path": "test/series_018.csv",
+      "file_name": "series_018.csv"
+    },
+    {
+      "run_id": 19,
+      "public_data_path": "test/series_019.csv",
+      "file_name": "series_019.csv"
+    },
+    {
+      "run_id": 20,
+      "public_data_path": "test/series_020.csv",
+      "file_name": "series_020.csv"
+    },
+    {
+      "run_id": 21,
+      "public_data_path": "test/series_021.csv",
+      "file_name": "series_021.csv"
+    },
+    {
+      "run_id": 22,
+      "public_data_path": "test/series_022.csv",
+      "file_name": "series_022.csv"
+    },
+    {
+      "run_id": 23,
+      "public_data_path": "test/series_023.csv",
+      "file_name": "series_023.csv"
+    },
+    {
+      "run_id": 24,
+      "public_data_path": "test/series_024.csv",
+      "file_name": "series_024.csv"
+    },
+    {
+      "run_id": 25,
+      "public_data_path": "test/series_025.csv",
+      "file_name": "series_025.csv"
+    },
+    {
+      "run_id": 26,
+      "public_data_path": "test/series_026.csv",
+      "file_name": "series_026.csv"
+    },
+    {
+      "run_id": 27,
+      "public_data_path": "test/series_027.csv",
+      "file_name": "series_027.csv"
+    },
+    {
+      "run_id": 28,
+      "public_data_path": "test/series_028.csv",
+      "file_name": "series_028.csv"
+    },
+    {
+      "run_id": 29,
+      "public_data_path": "test/series_029.csv",
+      "file_name": "series_029.csv"
+    },
+    {
+      "run_id": 30,
+      "public_data_path": "test/series_030.csv",
+      "file_name": "series_030.csv"
+    },
+    {
+      "run_id": 31,
+      "public_data_path": "test/series_031.csv",
+      "file_name": "series_031.csv"
+    },
+    {
+      "run_id": 32,
+      "public_data_path": "test/series_032.csv",
+      "file_name": "series_032.csv"
+    },
+    {
+      "run_id": 33,
+      "public_data_path": "test/series_033.csv",
+      "file_name": "series_033.csv"
+    },
+    {
+      "run_id": 34,
+      "public_data_path": "test/series_034.csv",
+      "file_name": "series_034.csv"
+    },
+    {
+      "run_id": 35,
+      "public_data_path": "test/series_035.csv",
+      "file_name": "series_035.csv"
+    },
+    {
+      "run_id": 36,
+      "public_data_path": "test/series_036.csv",
+      "file_name": "series_036.csv"
+    },
+    {
+      "run_id": 37,
+      "public_data_path": "test/series_037.csv",
+      "file_name": "series_037.csv"
+    },
+    {
+      "run_id": 38,
+      "public_data_path": "test/series_038.csv",
+      "file_name": "series_038.csv"
+    },
+    {
+      "run_id": 39,
+      "public_data_path": "test/series_039.csv",
+      "file_name": "series_039.csv"
+    },
+    {
+      "run_id": 40,
+      "public_data_path": "test/series_040.csv",
+      "file_name": "series_040.csv"
+    },
+    {
+      "run_id": 41,
+      "public_data_path": "test/series_041.csv",
+      "file_name": "series_041.csv"
+    },
+    {
+      "run_id": 42,
+      "public_data_path": "test/series_042.csv",
+      "file_name": "series_042.csv"
+    },
+    {
+      "run_id": 43,
+      "public_data_path": "test/series_043.csv",
+      "file_name": "series_043.csv"
+    },
+    {
+      "run_id": 44,
+      "public_data_path": "test/series_044.csv",
+      "file_name": "series_044.csv"
+    },
+    {
+      "run_id": 45,
+      "public_data_path": "test/series_045.csv",
+      "file_name": "series_045.csv"
+    },
+    {
+      "run_id": 46,
+      "public_data_path": "test/series_046.csv",
+      "file_name": "series_046.csv"
+    },
+    {
+      "run_id": 47,
+      "public_data_path": "test/series_047.csv",
+      "file_name": "series_047.csv"
+    },
+    {
+      "run_id": 48,
+      "public_data_path": "test/series_048.csv",
+      "file_name": "series_048.csv"
+    },
+    {
+      "run_id": 49,
+      "public_data_path": "test/series_049.csv",
+      "file_name": "series_049.csv"
+    },
+    {
+      "run_id": 50,
+      "public_data_path": "test/series_050.csv",
+      "file_name": "series_050.csv"
+    },
+    {
+      "run_id": 51,
+      "public_data_path": "test/series_051.csv",
+      "file_name": "series_051.csv"
+    },
+    {
+      "run_id": 52,
+      "public_data_path": "test/series_052.csv",
+      "file_name": "series_052.csv"
+    },
+    {
+      "run_id": 53,
+      "public_data_path": "test/series_053.csv",
+      "file_name": "series_053.csv"
+    }
+  ],
+  "train_runs": [
+    {
+      "public_data_path": "train/series_001.csv",
+      "file_name": "series_001.csv",
+      "num_rows": 4306
+    },
+    {
+      "public_data_path": "train/series_002.csv",
+      "file_name": "series_002.csv",
+      "num_rows": 4110
+    },
+    {
+      "public_data_path": "train/series_003.csv",
+      "file_name": "series_003.csv",
+      "num_rows": 10110
+    },
+    {
+      "public_data_path": "train/series_004.csv",
+      "file_name": "series_004.csv",
+      "num_rows": 3840
+    },
+    {
+      "public_data_path": "train/series_005.csv",
+      "file_name": "series_005.csv",
+      "num_rows": 3282
+    },
+    {
+      "public_data_path": "train/series_006.csv",
+      "file_name": "series_006.csv",
+      "num_rows": 8018
+    },
+    {
+      "public_data_path": "train/series_007.csv",
+      "file_name": "series_007.csv",
+      "num_rows": 4024
+    },
+    {
+      "public_data_path": "train/series_008.csv",
+      "file_name": "series_008.csv",
+      "num_rows": 5292
+    },
+    {
+      "public_data_path": "train/series_009.csv",
+      "file_name": "series_009.csv",
+      "num_rows": 6408
+    },
+    {
+      "public_data_path": "train/series_010.csv",
+      "file_name": "series_010.csv",
+      "num_rows": 7149
+    },
+    {
+      "public_data_path": "train/series_011.csv",
+      "file_name": "series_011.csv",
+      "num_rows": 6261
+    },
+    {
+      "public_data_path": "train/series_012.csv",
+      "file_name": "series_012.csv",
+      "num_rows": 2444
+    },
+    {
+      "public_data_path": "train/series_013.csv",
+      "file_name": "series_013.csv",
+      "num_rows": 11140
+    },
+    {
+      "public_data_path": "train/series_014.csv",
+      "file_name": "series_014.csv",
+      "num_rows": 5215
+    },
+    {
+      "public_data_path": "train/series_015.csv",
+      "file_name": "series_015.csv",
+      "num_rows": 20076
+    },
+    {
+      "public_data_path": "train/series_016.csv",
+      "file_name": "series_016.csv",
+      "num_rows": 6585
+    },
+    {
+      "public_data_path": "train/series_017.csv",
+      "file_name": "series_017.csv",
+      "num_rows": 5528
+    },
+    {
+      "public_data_path": "train/series_018.csv",
+      "file_name": "series_018.csv",
+      "num_rows": 742
+    },
+    {
+      "public_data_path": "train/series_019.csv",
+      "file_name": "series_019.csv",
+      "num_rows": 4907
+    },
+    {
+      "public_data_path": "train/series_020.csv",
+      "file_name": "series_020.csv",
+      "num_rows": 5435
+    },
+    {
+      "public_data_path": "train/series_021.csv",
+      "file_name": "series_021.csv",
+      "num_rows": 3559
+    },
+    {
+      "public_data_path": "train/series_022.csv",
+      "file_name": "series_022.csv",
+      "num_rows": 20489
+    },
+    {
+      "public_data_path": "train/series_023.csv",
+      "file_name": "series_023.csv",
+      "num_rows": 7394
+    },
+    {
+      "public_data_path": "train/series_024.csv",
+      "file_name": "series_024.csv",
+      "num_rows": 5590
+    },
+    {
+      "public_data_path": "train/series_025.csv",
+      "file_name": "series_025.csv",
+      "num_rows": 13021
+    },
+    {
+      "public_data_path": "train/series_026.csv",
+      "file_name": "series_026.csv",
+      "num_rows": 3259
+    },
+    {
+      "public_data_path": "train/series_027.csv",
+      "file_name": "series_027.csv",
+      "num_rows": 5540
+    },
+    {
+      "public_data_path": "train/series_028.csv",
+      "file_name": "series_028.csv",
+      "num_rows": 5720
+    }
+  ],
+  "validation_runs": [
+    {
+      "public_data_path": "val/series_001.csv",
+      "label_path": "val_labels/series_001.csv",
+      "file_name": "series_001.csv",
+      "num_rows": 8414,
+      "num_positive_labels": 3163
+    },
+    {
+      "public_data_path": "val/series_002.csv",
+      "label_path": "val_labels/series_002.csv",
+      "file_name": "series_002.csv",
+      "num_rows": 11195,
+      "num_positive_labels": 344
+    },
+    {
+      "public_data_path": "val/series_003.csv",
+      "label_path": "val_labels/series_003.csv",
+      "file_name": "series_003.csv",
+      "num_rows": 2070,
+      "num_positive_labels": 851
+    },
+    {
+      "public_data_path": "val/series_004.csv",
+      "label_path": "val_labels/series_004.csv",
+      "file_name": "series_004.csv",
+      "num_rows": 7353,
+      "num_positive_labels": 56
+    },
+    {
+      "public_data_path": "val/series_005.csv",
+      "label_path": "val_labels/series_005.csv",
+      "file_name": "series_005.csv",
+      "num_rows": 7156,
+      "num_positive_labels": 169
+    },
+    {
+      "public_data_path": "val/series_006.csv",
+      "label_path": "val_labels/series_006.csv",
+      "file_name": "series_006.csv",
+      "num_rows": 8126,
+      "num_positive_labels": 1748
+    },
+    {
+      "public_data_path": "val/series_007.csv",
+      "label_path": "val_labels/series_007.csv",
+      "file_name": "series_007.csv",
+      "num_rows": 8896,
+      "num_positive_labels": 1250
+    },
+    {
+      "public_data_path": "val/series_008.csv",
+      "label_path": "val_labels/series_008.csv",
+      "file_name": "series_008.csv",
+      "num_rows": 6117,
+      "num_positive_labels": 4982
+    },
+    {
+      "public_data_path": "val/series_009.csv",
+      "label_path": "val_labels/series_009.csv",
+      "file_name": "series_009.csv",
+      "num_rows": 7678,
+      "num_positive_labels": 4861
+    },
+    {
+      "public_data_path": "val/series_010.csv",
+      "label_path": "val_labels/series_010.csv",
+      "file_name": "series_010.csv",
+      "num_rows": 12683,
+      "num_positive_labels": 1662
+    }
+  ],
+  "test_runs": [
+    {
+      "public_data_path": "test/series_001.csv",
+      "file_name": "series_001.csv",
+      "run_id": 1,
+      "num_rows": 2584
+    },
+    {
+      "public_data_path": "test/series_002.csv",
+      "file_name": "series_002.csv",
+      "run_id": 2,
+      "num_rows": 4824
+    },
+    {
+      "public_data_path": "test/series_003.csv",
+      "file_name": "series_003.csv",
+      "run_id": 3,
+      "num_rows": 3390
+    },
+    {
+      "public_data_path": "test/series_004.csv",
+      "file_name": "series_004.csv",
+      "run_id": 4,
+      "num_rows": 6846
+    },
+    {
+      "public_data_path": "test/series_005.csv",
+      "file_name": "series_005.csv",
+      "run_id": 5,
+      "num_rows": 2774
+    },
+    {
+      "public_data_path": "test/series_006.csv",
+      "file_name": "series_006.csv",
+      "run_id": 6,
+      "num_rows": 5159
+    },
+    {
+      "public_data_path": "test/series_007.csv",
+      "file_name": "series_007.csv",
+      "run_id": 7,
+      "num_rows": 5140
+    },
+    {
+      "public_data_path": "test/series_008.csv",
+      "file_name": "series_008.csv",
+      "run_id": 8,
+      "num_rows": 4388
+    },
+    {
+      "public_data_path": "test/series_009.csv",
+      "file_name": "series_009.csv",
+      "run_id": 9,
+      "num_rows": 4611
+    },
+    {
+      "public_data_path": "test/series_010.csv",
+      "file_name": "series_010.csv",
+      "run_id": 10,
+      "num_rows": 4045
+    },
+    {
+      "public_data_path": "test/series_011.csv",
+      "file_name": "series_011.csv",
+      "run_id": 11,
+      "num_rows": 4445
+    },
+    {
+      "public_data_path": "test/series_012.csv",
+      "file_name": "series_012.csv",
+      "run_id": 12,
+      "num_rows": 10382
+    },
+    {
+      "public_data_path": "test/series_013.csv",
+      "file_name": "series_013.csv",
+      "run_id": 13,
+      "num_rows": 3960
+    },
+    {
+      "public_data_path": "test/series_014.csv",
+      "file_name": "series_014.csv",
+      "run_id": 14,
+      "num_rows": 1493
+    },
+    {
+      "public_data_path": "test/series_015.csv",
+      "file_name": "series_015.csv",
+      "run_id": 15,
+      "num_rows": 3568
+    },
+    {
+      "public_data_path": "test/series_016.csv",
+      "file_name": "series_016.csv",
+      "run_id": 16,
+      "num_rows": 4906
+    },
+    {
+      "public_data_path": "test/series_017.csv",
+      "file_name": "series_017.csv",
+      "run_id": 17,
+      "num_rows": 3832
+    },
+    {
+      "public_data_path": "test/series_018.csv",
+      "file_name": "series_018.csv",
+      "run_id": 18,
+      "num_rows": 2494
+    },
+    {
+      "public_data_path": "test/series_019.csv",
+      "file_name": "series_019.csv",
+      "run_id": 19,
+      "num_rows": 5049
+    },
+    {
+      "public_data_path": "test/series_020.csv",
+      "file_name": "series_020.csv",
+      "run_id": 20,
+      "num_rows": 15152
+    },
+    {
+      "public_data_path": "test/series_021.csv",
+      "file_name": "series_021.csv",
+      "run_id": 21,
+      "num_rows": 5881
+    },
+    {
+      "public_data_path": "test/series_022.csv",
+      "file_name": "series_022.csv",
+      "run_id": 22,
+      "num_rows": 3614
+    },
+    {
+      "public_data_path": "test/series_023.csv",
+      "file_name": "series_023.csv",
+      "run_id": 23,
+      "num_rows": 3687
+    },
+    {
+      "public_data_path": "test/series_024.csv",
+      "file_name": "series_024.csv",
+      "run_id": 24,
+      "num_rows": 3178
+    },
+    {
+      "public_data_path": "test/series_025.csv",
+      "file_name": "series_025.csv",
+      "run_id": 25,
+      "num_rows": 3274
+    },
+    {
+      "public_data_path": "test/series_026.csv",
+      "file_name": "series_026.csv",
+      "run_id": 26,
+      "num_rows": 6189
+    },
+    {
+      "public_data_path": "test/series_027.csv",
+      "file_name": "series_027.csv",
+      "run_id": 27,
+      "num_rows": 7036
+    },
+    {
+      "public_data_path": "test/series_028.csv",
+      "file_name": "series_028.csv",
+      "run_id": 28,
+      "num_rows": 1972
+    },
+    {
+      "public_data_path": "test/series_029.csv",
+      "file_name": "series_029.csv",
+      "run_id": 29,
+      "num_rows": 11145
+    },
+    {
+      "public_data_path": "test/series_030.csv",
+      "file_name": "series_030.csv",
+      "run_id": 30,
+      "num_rows": 5372
+    },
+    {
+      "public_data_path": "test/series_031.csv",
+      "file_name": "series_031.csv",
+      "run_id": 31,
+      "num_rows": 8628
+    },
+    {
+      "public_data_path": "test/series_032.csv",
+      "file_name": "series_032.csv",
+      "run_id": 32,
+      "num_rows": 6308
+    },
+    {
+      "public_data_path": "test/series_033.csv",
+      "file_name": "series_033.csv",
+      "run_id": 33,
+      "num_rows": 4568
+    },
+    {
+      "public_data_path": "test/series_034.csv",
+      "file_name": "series_034.csv",
+      "run_id": 34,
+      "num_rows": 5762
+    },
+    {
+      "public_data_path": "test/series_035.csv",
+      "file_name": "series_035.csv",
+      "run_id": 35,
+      "num_rows": 5502
+    },
+    {
+      "public_data_path": "test/series_036.csv",
+      "file_name": "series_036.csv",
+      "run_id": 36,
+      "num_rows": 13883
+    },
+    {
+      "public_data_path": "test/series_037.csv",
+      "file_name": "series_037.csv",
+      "run_id": 37,
+      "num_rows": 6505
+    },
+    {
+      "public_data_path": "test/series_038.csv",
+      "file_name": "series_038.csv",
+      "run_id": 38,
+      "num_rows": 7164
+    },
+    {
+      "public_data_path": "test/series_039.csv",
+      "file_name": "series_039.csv",
+      "run_id": 39,
+      "num_rows": 3052
+    },
+    {
+      "public_data_path": "test/series_040.csv",
+      "file_name": "series_040.csv",
+      "run_id": 40,
+      "num_rows": 7050
+    },
+    {
+      "public_data_path": "test/series_041.csv",
+      "file_name": "series_041.csv",
+      "run_id": 41,
+      "num_rows": 6242
+    },
+    {
+      "public_data_path": "test/series_042.csv",
+      "file_name": "series_042.csv",
+      "run_id": 42,
+      "num_rows": 3154
+    },
+    {
+      "public_data_path": "test/series_043.csv",
+      "file_name": "series_043.csv",
+      "run_id": 43,
+      "num_rows": 10521
+    },
+    {
+      "public_data_path": "test/series_044.csv",
+      "file_name": "series_044.csv",
+      "run_id": 44,
+      "num_rows": 8859
+    },
+    {
+      "public_data_path": "test/series_045.csv",
+      "file_name": "series_045.csv",
+      "run_id": 45,
+      "num_rows": 1213
+    },
+    {
+      "public_data_path": "test/series_046.csv",
+      "file_name": "series_046.csv",
+      "run_id": 46,
+      "num_rows": 3433
+    },
+    {
+      "public_data_path": "test/series_047.csv",
+      "file_name": "series_047.csv",
+      "run_id": 47,
+      "num_rows": 7683
+    },
+    {
+      "public_data_path": "test/series_048.csv",
+      "file_name": "series_048.csv",
+      "run_id": 48,
+      "num_rows": 4323
+    },
+    {
+      "public_data_path": "test/series_049.csv",
+      "file_name": "series_049.csv",
+      "run_id": 49,
+      "num_rows": 19825
+    },
+    {
+      "public_data_path": "test/series_050.csv",
+      "file_name": "series_050.csv",
+      "run_id": 50,
+      "num_rows": 16021
+    },
+    {
+      "public_data_path": "test/series_051.csv",
+      "file_name": "series_051.csv",
+      "run_id": 51,
+      "num_rows": 5431
+    },
+    {
+      "public_data_path": "test/series_052.csv",
+      "file_name": "series_052.csv",
+      "run_id": 52,
+      "num_rows": 6139
+    },
+    {
+      "public_data_path": "test/series_053.csv",
+      "file_name": "series_053.csv",
+      "run_id": 53,
+      "num_rows": 4368
+    }
+  ],
+  "statistics": {
+    "num_train_runs": 28,
+    "num_validation_runs": 10,
+    "num_test_runs": 53,
+    "num_train_rows": 189444,
+    "num_validation_rows": 79688,
+    "num_test_rows": 316024,
+    "num_validation_positive_labels": 19086
+  }
+}
