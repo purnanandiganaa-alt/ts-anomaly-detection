@@ -19,6 +19,8 @@ module load nvidia/latest
 
 source ts-anomaly-env/bin/activate
 
-python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu')"
+python -u -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu')"
 
-python -m src.pipelines.run_hybrid
+# -u: unbuffered stdout, so `tail -f` on the log file shows live progress
+# instead of nothing until the buffer flushes or the job exits.
+python -u -m src.pipelines.run_hybrid
