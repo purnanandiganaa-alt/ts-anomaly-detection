@@ -20,9 +20,11 @@ def train_autoencoder(
     reconstruct some anomalous patterns too (train isn't guaranteed
     anomaly-free), which shrinks the normal/anomalous error gap the score
     depends on. If `eval_fn` is given, it's called every `eval_every` epochs
-    with the current model and should return a validation F1; the epoch with
-    the best score is kept (via a state_dict snapshot) instead of blindly
-    returning the final epoch. Omit `eval_fn` to keep the old behavior.
+    with the current model and should return a validation score (whatever
+    metric the caller's eval_fn computes - Round 4 uses F-beta, not
+    necessarily F1); the epoch with the best score is kept (via a
+    state_dict snapshot) instead of blindly returning the final epoch.
+    Omit `eval_fn` to keep the old behavior.
 
     Returns the trained model (best checkpoint if eval_fn is used).
     """
@@ -34,7 +36,7 @@ def train_autoencoder(
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = nn.MSELoss()
 
-    best_f1 = -1.0
+    best_score = -1.0
     best_state = None
 
     for epoch in range(epochs):
@@ -57,16 +59,16 @@ def train_autoencoder(
             print(f"Epoch {epoch + 1}/{epochs} loss: {total_loss / len(train_loader):.6f}")
 
         if eval_fn is not None and eval_every and (epoch + 1) % eval_every == 0:
-            val_f1 = eval_fn(model)
+            val_score = eval_fn(model)
             if verbose:
-                print(f"  -> validation F1 at epoch {epoch + 1}: {val_f1:.4f}")
-            if val_f1 > best_f1:
-                best_f1 = val_f1
+                print(f"  -> validation score at epoch {epoch + 1}: {val_score:.4f}")
+            if val_score > best_score:
+                best_score = val_score
                 best_state = copy.deepcopy(model.state_dict())
 
     if best_state is not None:
         if verbose:
-            print(f"Restoring best checkpoint (validation F1={best_f1:.4f})")
+            print(f"Restoring best checkpoint (validation score={best_score:.4f})")
         model.load_state_dict(best_state)
 
     return model

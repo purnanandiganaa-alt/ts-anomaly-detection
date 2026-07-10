@@ -1,10 +1,13 @@
 """
 Standalone CNN autoencoder pipeline.
 
-Deduplicated from notebooks/04_cnn_tuning.ipynb, with the Phase 2 fixes
-applied: windows respect run boundaries, val/test are scored densely and
-expanded to per-timestep scores, and training runs for the epoch count the
-project's own tuning notebook already validated (see src/config.py).
+Deduplicated from notebooks/04_cnn_tuning.ipynb, with fixes applied across
+several rounds: windows respect run boundaries, val/test are scored densely
+and expanded to per-timestep scores, training runs for the epoch count the
+project's own tuning notebook validated with checkpoint selection on top
+(see src/config.py), and (Round 4) the anomaly score is a Mahalanobis
+distance over per-sensor reconstruction error rather than a flat mean,
+with an F-beta (precision-weighted) threshold.
 
 Run from the repository root: python -m src.pipelines.run_cnn
 """
@@ -12,6 +15,7 @@ Run from the repository root: python -m src.pipelines.run_cnn
 import json
 
 import numpy as np
+import pandas as pd
 import torch
 from sklearn.preprocessing import StandardScaler
 
@@ -22,22 +26,56 @@ from src.core.windowing import (
     load_labels_per_file,
     load_split_per_file,
 )
-from src.evaluation.metrics import compute_metrics, find_best_threshold
+from src.evaluation.metrics import (
+    compute_metrics,
+    fit_mahalanobis,
+    find_best_threshold,
+    mahalanobis_scores,
+)
 from src.models.cnn.predict import get_reconstruction_errors
 from src.models.cnn.train import train_autoencoder
 
 OUTPUT_DIR = config.OUTPUT_DIR / "cnn"
 
 
-def score_split_densely(model, files, scaler, device):
-    """Score each run at config.EVAL_STEP and expand to one score per raw timestep."""
+def fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device):
+    """Fit a Gaussian error model on validation windows confirmed normal.
+
+    Round 4: windows validation at train-time stride (config.STEP, not the
+    dense EVAL_STEP - we just need a representative sample of normal
+    windows, not every overlapping one), gets per-sensor reconstruction
+    errors, and fits mu/precision only on windows with no anomalous
+    timestep at all (window label == 0).
+    """
+    errors_list, labels_list = [], []
+    for df, labels in zip(val_files, val_labels):
+        scaled = scaler.transform(df.values)
+        windows, window_labels = create_windows_per_file(
+            [scaled], [labels], window_size=config.WINDOW_SIZE, step=config.STEP
+        )
+        errors_list.append(
+            get_reconstruction_errors(model, windows, device, batch_size=config.BATCH_SIZE, per_sensor=True)
+        )
+        labels_list.append(window_labels)
+
+    errors = np.concatenate(errors_list, axis=0)
+    labels = np.concatenate(labels_list, axis=0)
+    return fit_mahalanobis(errors[labels == 0])
+
+
+def score_split_densely(model, files, scaler, device, mu, precision):
+    """Score each run at config.EVAL_STEP via Mahalanobis distance on
+    per-sensor errors, and expand to one score per raw timestep."""
     per_timestep_scores = []
     for df in files:
         scaled = scaler.transform(df.values)
         windows, _ = create_windows_per_file(
             [scaled], window_size=config.WINDOW_SIZE, step=config.EVAL_STEP
         )
-        window_scores = get_reconstruction_errors(model, windows, device, batch_size=config.BATCH_SIZE)
+        window_errors = get_reconstruction_errors(
+            model, windows, device, batch_size=config.BATCH_SIZE, per_sensor=True
+        )
+        window_scores = mahalanobis_scores(window_errors, mu, precision)
         timestep_scores = expand_window_scores_to_timesteps(
             window_scores, len(df), config.WINDOW_SIZE, config.EVAL_STEP
         )
@@ -70,11 +108,13 @@ def main():
     y_val = np.concatenate(val_labels)
 
     def eval_fn(model):
-        """Score validation at per-timestep resolution; used to keep the
-        best checkpoint instead of blindly training to the last epoch."""
-        val_scores = score_split_densely(model, val_files, scaler, device)
-        _, f1 = find_best_threshold(y_val, val_scores)
-        return f1
+        """Fit the error model and score validation at per-timestep
+        resolution; used to keep the best checkpoint instead of blindly
+        training to the last epoch."""
+        mu, precision = fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device)
+        val_scores = score_split_densely(model, val_files, scaler, device, mu, precision)
+        _, f_beta = find_best_threshold(y_val, val_scores, beta=config.THRESHOLD_BETA)
+        return f_beta
 
     print(f"Training for {config.EPOCHS} epochs (checking validation every {config.CNN_EVAL_EVERY})...")
     model = train_autoencoder(
@@ -87,12 +127,16 @@ def main():
         eval_fn=eval_fn,
     )
 
-    print("Scoring validation and test at per-timestep resolution...")
-    val_scores = score_split_densely(model, val_files, scaler, device)
-    test_scores = score_split_densely(model, test_files, scaler, device)
+    print("Fitting Mahalanobis error model on confirmed-normal validation windows...")
+    mu, precision = fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device)
 
-    best_threshold, _ = find_best_threshold(y_val, val_scores)
+    print("Scoring validation and test at per-timestep resolution...")
+    val_scores = score_split_densely(model, val_files, scaler, device, mu, precision)
+    test_scores = score_split_densely(model, test_files, scaler, device, mu, precision)
+
+    best_threshold, _ = find_best_threshold(y_val, val_scores, beta=config.THRESHOLD_BETA)
     metrics = compute_metrics(y_val, val_scores, best_threshold)
+    metrics["threshold_beta"] = config.THRESHOLD_BETA
     print(json.dumps(metrics, indent=2))
 
     preds = (test_scores > best_threshold).astype(int)
@@ -101,11 +145,9 @@ def main():
     with open(OUTPUT_DIR / "metrics.json", "w") as f:
         json.dump(metrics, f, indent=4)
 
-    import pandas as pd
-
     output = pd.DataFrame({
         "timestep_index": np.arange(len(preds)),
-        "reconstruction_error": test_scores,
+        "mahalanobis_score": test_scores,
         "is_anomaly": preds,
     })
     output.to_csv(OUTPUT_DIR / "predictions.csv", index=False)

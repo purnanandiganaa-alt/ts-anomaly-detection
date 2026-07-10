@@ -84,3 +84,15 @@ WINDOW_IF_N_ESTIMATORS = 200
 # hand-picked once; it's now chosen per-run by sweeping
 # src.pipelines.run_hybrid.CNN_WEIGHT_GRID against the validation set.
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Threshold selection
+#
+# Round 4 fix: plain F1 (beta=1) has consistently picked an aggressive,
+# high-recall/low-precision threshold given how overlapped the normal/
+# anomalous score distributions are - the project's over-prediction symptom
+# (65-88% of timesteps flagged anomalous). beta<1 weights precision higher;
+# 0.5 is a standard, moderate starting point (not as extreme as the original
+# EncDec-AD paper's 0.05-0.1, which was tuned per-dataset).
+# ---------------------------------------------------------------------------
+THRESHOLD_BETA = 0.5

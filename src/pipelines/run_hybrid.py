@@ -1,10 +1,13 @@
 """
 Hybrid pipeline: CNN autoencoder + window-based Isolation Forest, fused.
 
-Deduplicated from notebooks/05_hybrid_model.ipynb, with the Phase 2 fixes
-applied: windows respect run boundaries, both branches are scored densely
-and expanded to per-timestep scores before fusion, and the fusion weight is
-swept on validation instead of hardcoded.
+Deduplicated from notebooks/05_hybrid_model.ipynb, with fixes applied across
+several rounds: windows respect run boundaries, both branches are scored
+densely and expanded to per-timestep scores before fusion, the fusion
+weight and Isolation Forest contamination are swept on validation instead
+of hardcoded, and (Round 4) the CNN score is a Mahalanobis distance over
+per-sensor reconstruction error rather than a flat mean, with an F-beta
+(precision-weighted) threshold used throughout.
 
 Run from the repository root: python -m src.pipelines.run_hybrid
 """
@@ -23,7 +26,12 @@ from src.core.windowing import (
     load_labels_per_file,
     load_split_per_file,
 )
-from src.evaluation.metrics import compute_metrics, find_best_threshold
+from src.evaluation.metrics import (
+    compute_metrics,
+    fit_mahalanobis,
+    find_best_threshold,
+    mahalanobis_scores,
+)
 from src.models.cnn.predict import get_reconstruction_errors
 from src.models.cnn.train import train_autoencoder
 from src.models.isolation_forest.features import extract_window_features
@@ -45,12 +53,38 @@ CNN_WEIGHT_GRID = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 WINDOW_IF_CONTAMINATION_GRID = [0.1, 0.15, 0.2, 0.25, 0.3]
 
 
-def score_cnn_densely(model, files, scaler, device):
+def fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device):
+    """Fit a Gaussian error model on validation windows confirmed normal.
+
+    Round 4: windows validation at train-time stride (config.STEP), gets
+    per-sensor reconstruction errors, and fits mu/precision only on windows
+    with no anomalous timestep at all (window label == 0).
+    """
+    errors_list, labels_list = [], []
+    for df, labels in zip(val_files, val_labels):
+        scaled = scaler.transform(df.values)
+        windows, window_labels = create_windows_per_file(
+            [scaled], [labels], window_size=config.WINDOW_SIZE, step=config.STEP
+        )
+        errors_list.append(
+            get_reconstruction_errors(model, windows, device, batch_size=config.BATCH_SIZE, per_sensor=True)
+        )
+        labels_list.append(window_labels)
+
+    errors = np.concatenate(errors_list, axis=0)
+    labels = np.concatenate(labels_list, axis=0)
+    return fit_mahalanobis(errors[labels == 0])
+
+
+def score_cnn_densely(model, files, scaler, device, mu, precision):
     per_timestep = []
     for df in files:
         scaled = scaler.transform(df.values)
         windows, _ = create_windows_per_file([scaled], window_size=config.WINDOW_SIZE, step=config.EVAL_STEP)
-        window_scores = get_reconstruction_errors(model, windows, device, batch_size=config.BATCH_SIZE)
+        window_errors = get_reconstruction_errors(
+            model, windows, device, batch_size=config.BATCH_SIZE, per_sensor=True
+        )
+        window_scores = mahalanobis_scores(window_errors, mu, precision)
         per_timestep.append(
             expand_window_scores_to_timesteps(window_scores, len(df), config.WINDOW_SIZE, config.EVAL_STEP)
         )
@@ -76,14 +110,14 @@ def normalize(val_scores, test_scores):
 
 
 def sweep_fusion_weight(y_val, cnn_val_n, iso_val_n):
-    """Pick the CNN/ISO weight split that maximizes validation F1."""
+    """Pick the CNN/ISO weight split that maximizes validation F-beta."""
     best = None
     for cnn_weight in CNN_WEIGHT_GRID:
         fused = cnn_weight * cnn_val_n + (1 - cnn_weight) * iso_val_n
-        threshold, f1 = find_best_threshold(y_val, fused)
-        if best is None or f1 > best["f1"]:
-            best = {"cnn_weight": cnn_weight, "threshold": threshold, "f1": f1}
-    return best["cnn_weight"], best["threshold"], best["f1"]
+        threshold, f_beta = find_best_threshold(y_val, fused, beta=config.THRESHOLD_BETA)
+        if best is None or f_beta > best["f_beta"]:
+            best = {"cnn_weight": cnn_weight, "threshold": threshold, "f_beta": f_beta}
+    return best["cnn_weight"], best["threshold"], best["f_beta"]
 
 
 def sweep_iso_contamination(X_train_iso, val_files, scaler, y_val):
@@ -98,10 +132,10 @@ def sweep_iso_contamination(X_train_iso, val_files, scaler, y_val):
             random_state=config.RANDOM_SEED,
         )
         iso_val = score_iso_densely(model, val_files, scaler)
-        _, f1 = find_best_threshold(y_val, iso_val)
-        print(f"  contamination={contamination}: val F1={f1:.4f}")
-        if best is None or f1 > best["f1"]:
-            best = {"contamination": contamination, "model": model, "f1": f1}
+        _, f_beta = find_best_threshold(y_val, iso_val, beta=config.THRESHOLD_BETA)
+        print(f"  contamination={contamination}: val F{config.THRESHOLD_BETA}={f_beta:.4f}")
+        if best is None or f_beta > best["f_beta"]:
+            best = {"contamination": contamination, "model": model, "f_beta": f_beta}
     return best["model"], best["contamination"]
 
 
@@ -130,11 +164,13 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def eval_fn(model):
-        """Score validation at per-timestep resolution during training, so
-        the best checkpoint (not necessarily the last epoch) gets kept."""
-        val_scores = score_cnn_densely(model, val_files, scaler, device)
-        _, f1 = find_best_threshold(y_val, val_scores)
-        return f1
+        """Fit the error model and score validation at per-timestep
+        resolution during training, so the best checkpoint (not necessarily
+        the last epoch) gets kept."""
+        mu, precision = fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device)
+        val_scores = score_cnn_densely(model, val_files, scaler, device, mu, precision)
+        _, f_beta = find_best_threshold(y_val, val_scores, beta=config.THRESHOLD_BETA)
+        return f_beta
 
     print(f"Training CNN for {config.EPOCHS} epochs (checking validation every {config.CNN_EVAL_EVERY})...")
     cnn = train_autoencoder(
@@ -147,9 +183,12 @@ def main():
     iso, best_contamination = sweep_iso_contamination(X_train_iso, val_files, scaler, y_val)
     print(f"Selected WINDOW_IF_CONTAMINATION={best_contamination}")
 
+    print("Fitting Mahalanobis error model on confirmed-normal validation windows...")
+    mu, precision = fit_mahalanobis_from_validation(cnn, val_files, val_labels, scaler, device)
+
     print("Scoring validation and test at per-timestep resolution...")
-    cnn_val = score_cnn_densely(cnn, val_files, scaler, device)
-    cnn_test = score_cnn_densely(cnn, test_files, scaler, device)
+    cnn_val = score_cnn_densely(cnn, val_files, scaler, device, mu, precision)
+    cnn_test = score_cnn_densely(cnn, test_files, scaler, device, mu, precision)
     iso_val = score_iso_densely(iso, val_files, scaler)
     iso_test = score_iso_densely(iso, test_files, scaler)
 
@@ -168,9 +207,10 @@ def main():
     hybrid_metrics["cnn_weight"] = cnn_weight
     hybrid_metrics["iso_weight"] = iso_weight
     hybrid_metrics["iso_contamination"] = best_contamination
+    hybrid_metrics["threshold_beta"] = config.THRESHOLD_BETA
 
-    cnn_threshold, _ = find_best_threshold(y_val, cnn_val_n)
-    iso_threshold, _ = find_best_threshold(y_val, iso_val_n)
+    cnn_threshold, _ = find_best_threshold(y_val, cnn_val_n, beta=config.THRESHOLD_BETA)
+    iso_threshold, _ = find_best_threshold(y_val, iso_val_n, beta=config.THRESHOLD_BETA)
     all_metrics = {
         "cnn_only": compute_metrics(y_val, cnn_val_n, cnn_threshold),
         "isolation_forest_only": compute_metrics(y_val, iso_val_n, iso_threshold),
