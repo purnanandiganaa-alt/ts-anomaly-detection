@@ -36,6 +36,7 @@ from src.models.cnn.predict import get_reconstruction_errors
 from src.models.cnn.train import train_autoencoder
 
 OUTPUT_DIR = config.OUTPUT_DIR / "cnn"
+SUBMISSION_PATH = config.OUTPUT_DIR / "cnn_predictions.csv"
 
 
 def fit_mahalanobis_from_validation(model, val_files, val_labels, scaler, device):
@@ -151,6 +152,22 @@ def main():
         "is_anomaly": preds,
     })
     output.to_csv(OUTPUT_DIR / "predictions.csv", index=False)
+
+    # Portal submission: per-run run_id/timestep/prediction, mirroring the
+    # hybrid pipeline's format so CNN-only results can be uploaded directly.
+    print("Building submission...")
+    test_file_paths = sorted(config.TEST_PATH.glob("*.csv"))
+    rows = []
+    idx = 0
+    for run_id, path in enumerate(test_file_paths, start=1):
+        n_timesteps = len(pd.read_csv(path))
+        for t in range(n_timesteps):
+            rows.append((run_id, t, int(preds[idx])))
+            idx += 1
+
+    submission = pd.DataFrame(rows, columns=["run_id", "timestep", "prediction"])
+    submission.to_csv(SUBMISSION_PATH, index=False)
+    print("Saved:", SUBMISSION_PATH, submission.shape)
 
     return metrics
 
