@@ -99,6 +99,17 @@ def main():
     X_val_tab = create_features(str(config.VAL_PATH), str(config.SELECTED_SENSORS_PATH))
     X_test_tab = create_features(str(config.TEST_PATH), str(config.SELECTED_SENSORS_PATH))
 
+    # Standardize tabular features on TRAIN stats only (no leakage). LOF is a
+    # distance-based detector: on the raw features the large-magnitude pairwise
+    # product columns dominate the distance metric and swamp everything else,
+    # which crippled LOF's quality. (StandardScaler leaves zero-variance
+    # columns untouched, so no div-by-zero.) Also emits plain arrays, which
+    # silences sklearn's "X has no valid feature names" warning.
+    tab_scaler = StandardScaler()
+    X_train_tab = tab_scaler.fit_transform(X_train_tab)
+    X_val_tab = tab_scaler.transform(X_val_tab)
+    X_test_tab = tab_scaler.transform(X_test_tab)
+
     lof = LocalOutlierFactor(n_neighbors=config.LOF_N_NEIGHBORS, novelty=True, n_jobs=-1)
     lof.fit(X_train_tab)
     # LOF score_samples: higher = more normal, so negate for an anomaly score.
