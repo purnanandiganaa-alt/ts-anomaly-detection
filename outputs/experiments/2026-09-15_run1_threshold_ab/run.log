@@ -1,0 +1,114 @@
+Loading data...
+Fitting scaler on train...
+Windowing train (per-run, no cross-run splicing)...
+Train windows: (18401, 200, 18)
+Device: mps
+Training for 50 epochs (checking validation every 5)...
+Epoch 1/50 loss: 0.187441
+Epoch 2/50 loss: 0.064953
+Epoch 3/50 loss: 0.047701
+Epoch 4/50 loss: 0.038979
+Epoch 5/50 loss: 0.034548
+  -> validation score at epoch 5: 0.5311
+Epoch 6/50 loss: 0.029672
+Epoch 7/50 loss: 0.027371
+Epoch 8/50 loss: 0.025832
+Epoch 9/50 loss: 0.024196
+Epoch 10/50 loss: 0.022355
+  -> validation score at epoch 10: 0.5217
+Epoch 11/50 loss: 0.020958
+Epoch 12/50 loss: 0.020190
+Epoch 13/50 loss: 0.018940
+Epoch 14/50 loss: 0.017827
+Epoch 15/50 loss: 0.017216
+  -> validation score at epoch 15: 0.5275
+Epoch 16/50 loss: 0.016790
+Epoch 17/50 loss: 0.015772
+Epoch 18/50 loss: 0.015171
+Epoch 19/50 loss: 0.014598
+Epoch 20/50 loss: 0.014119
+  -> validation score at epoch 20: 0.5640
+Epoch 21/50 loss: 0.013738
+Epoch 22/50 loss: 0.012903
+Epoch 23/50 loss: 0.012656
+Epoch 24/50 loss: 0.012292
+Epoch 25/50 loss: 0.011760
+  -> validation score at epoch 25: 0.5237
+Epoch 26/50 loss: 0.011681
+Epoch 27/50 loss: 0.011018
+Epoch 28/50 loss: 0.010821
+Epoch 29/50 loss: 0.010750
+Epoch 30/50 loss: 0.010641
+  -> validation score at epoch 30: 0.5075
+Epoch 31/50 loss: 0.010143
+Epoch 32/50 loss: 0.009613
+Epoch 33/50 loss: 0.009275
+Epoch 34/50 loss: 0.009004
+Epoch 35/50 loss: 0.009432
+  -> validation score at epoch 35: 0.4676
+Epoch 36/50 loss: 0.008885
+Epoch 37/50 loss: 0.008790
+Epoch 38/50 loss: 0.008475
+Epoch 39/50 loss: 0.008775
+Epoch 40/50 loss: 0.008447
+  -> validation score at epoch 40: 0.5366
+Epoch 41/50 loss: 0.008912
+Epoch 42/50 loss: 0.008176
+Epoch 43/50 loss: 0.007596
+Epoch 44/50 loss: 0.007350
+Epoch 45/50 loss: 0.007632
+  -> validation score at epoch 45: 0.5794
+Epoch 46/50 loss: 0.007226
+Epoch 47/50 loss: 0.007217
+Epoch 48/50 loss: 0.007093
+Epoch 49/50 loss: 0.007212
+Epoch 50/50 loss: 0.007123
+  -> validation score at epoch 50: 0.5177
+Restoring best checkpoint (validation score=0.5794)
+Fitting Mahalanobis error model on confirmed-normal validation windows...
+Scoring validation and test per-run (dense)...
+{
+  "variants": {
+    "raw_beta0.5": {
+      "roc_auc": 0.768866588251919,
+      "precision": 0.5770909277609488,
+      "recall": 0.5889133396206644,
+      "f1": 0.5829421984804087,
+      "best_threshold": 42.77270620346069,
+      "anomaly_rate": 0.24441572131312117,
+      "threshold_beta": 0.5
+    },
+    "raw_beta1.0": {
+      "roc_auc": 0.768866588251919,
+      "precision": 0.5053740926856505,
+      "recall": 0.7587760662265535,
+      "f1": 0.6066775585438398,
+      "best_threshold": 15.109768619537354,
+      "anomaly_rate": 0.3596024495532577,
+      "threshold_beta": 1.0
+    },
+    "per_run_norm_beta0.5": {
+      "roc_auc": 0.6769088690055092,
+      "precision": 0.6902208201892744,
+      "recall": 0.2865975060253589,
+      "f1": 0.4050201769649402,
+      "best_threshold": 11.92151849849683,
+      "anomaly_rate": 0.0994503563899207,
+      "threshold_beta": 0.5
+    },
+    "per_run_norm_beta1.0": {
+      "roc_auc": 0.6769088690055092,
+      "precision": 0.3803210771620922,
+      "recall": 0.5771769883684376,
+      "f1": 0.45851283011799965,
+      "best_threshold": 0.4486974345144848,
+      "anomaly_rate": 0.3634800722818994,
+      "threshold_beta": 1.0
+    }
+  },
+  "best_variant_by_val_f1": "raw_beta1.0",
+  "deployed_cnn_predictions": "raw_beta1.0"
+}
+Best validation F1 variant: raw_beta1.0 F1 = 0.6067
+Building submissions...
+Saved: outputs/cnn_predictions.csv and outputs/cnn_predictions_pernorm.csv
