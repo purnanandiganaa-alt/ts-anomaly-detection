@@ -11,7 +11,7 @@ from src.models.cnn.model import ConvAutoencoder1D
 
 def train_autoencoder(
     X_train, n_features, device, epochs, batch_size, lr=1e-3, verbose=True,
-    eval_every=None, eval_fn=None,
+    eval_every=None, eval_fn=None, collect_states=False,
 ):
     """Train a ConvAutoencoder1D on normal (unlabeled) windows.
 
@@ -26,7 +26,15 @@ def train_autoencoder(
     state_dict snapshot) instead of blindly returning the final epoch.
     Omit `eval_fn` to keep the old behavior.
 
-    Returns the trained model (best checkpoint if eval_fn is used).
+    `collect_states=True` additionally returns every candidate state_dict on
+    the `eval_every` schedule as (epoch, deep-copied state_dict) pairs, so a
+    caller can choose among them *afterwards* using only a subset of the
+    validation runs (nested/leave-one-run-out selection). Snapshots are taken
+    on the schedule whether or not `eval_fn` is supplied; training itself is
+    unaffected either way, since `eval_fn`'s value only drives `best_state`.
+
+    Returns the trained model (best checkpoint if eval_fn is used), or
+    (model, states) when collect_states=True.
     """
     from src.models.cnn.model import SensorDataset
 
@@ -38,6 +46,7 @@ def train_autoencoder(
 
     best_score = -1.0
     best_state = None
+    states = []
 
     for epoch in range(epochs):
         model.train()
@@ -58,17 +67,20 @@ def train_autoencoder(
         if verbose:
             print(f"Epoch {epoch + 1}/{epochs} loss: {total_loss / len(train_loader):.6f}")
 
-        if eval_fn is not None and eval_every and (epoch + 1) % eval_every == 0:
-            val_score = eval_fn(model)
-            if verbose:
-                print(f"  -> validation score at epoch {epoch + 1}: {val_score:.4f}")
-            if val_score > best_score:
-                best_score = val_score
-                best_state = copy.deepcopy(model.state_dict())
+        if eval_every and (epoch + 1) % eval_every == 0:
+            if collect_states:
+                states.append((epoch + 1, copy.deepcopy(model.state_dict())))
+            if eval_fn is not None:
+                val_score = eval_fn(model)
+                if verbose:
+                    print(f"  -> validation score at epoch {epoch + 1}: {val_score:.4f}")
+                if val_score > best_score:
+                    best_score = val_score
+                    best_state = copy.deepcopy(model.state_dict())
 
     if best_state is not None:
         if verbose:
             print(f"Restoring best checkpoint (validation score={best_score:.4f})")
         model.load_state_dict(best_state)
 
-    return model
+    return (model, states) if collect_states else model

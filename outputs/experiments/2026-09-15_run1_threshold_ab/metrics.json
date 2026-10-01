@@ -1,0 +1,42 @@
+{
+    "variants": {
+        "raw_beta0.5": {
+            "roc_auc": 0.768866588251919,
+            "precision": 0.5770909277609488,
+            "recall": 0.5889133396206644,
+            "f1": 0.5829421984804087,
+            "best_threshold": 42.77270620346069,
+            "anomaly_rate": 0.24441572131312117,
+            "threshold_beta": 0.5
+        },
+        "raw_beta1.0": {
+            "roc_auc": 0.768866588251919,
+            "precision": 0.5053740926856505,
+            "recall": 0.7587760662265535,
+            "f1": 0.6066775585438398,
+            "best_threshold": 15.109768619537354,
+            "anomaly_rate": 0.3596024495532577,
+            "threshold_beta": 1.0
+        },
+        "per_run_norm_beta0.5": {
+            "roc_auc": 0.6769088690055092,
+            "precision": 0.6902208201892744,
+            "recall": 0.2865975060253589,
+            "f1": 0.4050201769649402,
+            "best_threshold": 11.92151849849683,
+            "anomaly_rate": 0.0994503563899207,
+            "threshold_beta": 0.5
+        },
+        "per_run_norm_beta1.0": {
+            "roc_auc": 0.6769088690055092,
+            "precision": 0.3803210771620922,
+            "recall": 0.5771769883684376,
+            "f1": 0.45851283011799965,
+            "best_threshold": 0.4486974345144848,
+            "anomaly_rate": 0.3634800722818994,
+            "threshold_beta": 1.0
+        }
+    },
+    "best_variant_by_val_f1": "raw_beta1.0",
+    "deployed_cnn_predictions": "raw_beta1.0"
+}

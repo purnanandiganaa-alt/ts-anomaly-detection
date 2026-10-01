@@ -1,0 +1,90 @@
+{
+  "overall": {
+    "f1_at_Fbeta_thr": 0.5731,
+    "f1_at_F1_thr": 0.6181,
+    "precision_Fbeta": 0.5975,
+    "recall_Fbeta": 0.5506,
+    "false_negatives": 8578,
+    "false_positives": 7079,
+    "true_anomaly_timesteps": 19086
+  },
+  "per_run_f1_at_Fbeta": [
+    {
+      "run": 1,
+      "anom_rate": 0.376,
+      "f1": 0.622,
+      "recall": 0.952,
+      "precision": 0.462
+    },
+    {
+      "run": 2,
+      "anom_rate": 0.031,
+      "f1": 0.397,
+      "recall": 0.666,
+      "precision": 0.283
+    },
+    {
+      "run": 3,
+      "anom_rate": 0.411,
+      "f1": 0.569,
+      "recall": 0.49,
+      "precision": 0.677
+    },
+    {
+      "run": 4,
+      "anom_rate": 0.008,
+      "f1": 0.068,
+      "recall": 1.0,
+      "precision": 0.035
+    },
+    {
+      "run": 5,
+      "anom_rate": 0.024,
+      "f1": 0.0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    {
+      "run": 6,
+      "anom_rate": 0.215,
+      "f1": 0.537,
+      "recall": 0.373,
+      "precision": 0.957
+    },
+    {
+      "run": 7,
+      "anom_rate": 0.141,
+      "f1": 0.0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    {
+      "run": 8,
+      "anom_rate": 0.814,
+      "f1": 0.789,
+      "recall": 0.682,
+      "precision": 0.936
+    },
+    {
+      "run": 9,
+      "anom_rate": 0.633,
+      "f1": 0.43,
+      "recall": 0.319,
+      "precision": 0.662
+    },
+    {
+      "run": 10,
+      "anom_rate": 0.131,
+      "f1": 0.779,
+      "recall": 0.72,
+      "precision": 0.848
+    }
+  ],
+  "top_signal_sensors": [
+    "FT703",
+    "T703",
+    "FT704",
+    "PDI702",
+    "FYI702"
+  ]
+}

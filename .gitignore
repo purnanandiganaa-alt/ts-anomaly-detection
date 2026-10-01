@@ -35,3 +35,8 @@ data/processed/
 outputs/tmp/
 # large processed artifacts
 data/artifacts/
+# =====================
+# LATEX BUILD LOGS
+# =====================
+reports/**/*.log
+reports/**/*.blg
