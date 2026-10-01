@@ -1,0 +1,180 @@
+% Speaker notes for slides.pdf: one section per slide, with a thumbnail.
+% Build after slides.pdf exists: tectonic speech.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\definecolor{rptublue}{HTML}{042C58}
+\titleformat{\section}{\large\bfseries\color{rptublue}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.2em}{0.6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+
+% \slidenote{page}{title}{time}{speech}
+\newcommand{\slidenote}[4]{%
+  \section{Slide #1: #2}
+  \begin{minipage}[t]{0.34\textwidth}\vspace{0pt}
+    \fbox{\includegraphics[page=#1,width=0.95\linewidth]{slides.pdf}}\\[2pt]
+    {\footnotesize\color{black!60} Suggested time: #3}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.62\textwidth}\vspace{0pt}
+    #4
+  \end{minipage}
+  \par\medskip}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries\color{rptublue} Presentation Script}\\[0.4em]
+{\large Machine Learning and Deep Learning --- Final Presentation}\\[0.3em]
+Purna Chandra Nandigana
+\end{center}
+
+\medskip
+\textbf{How to use this document.} Each section shows one slide and what to say for it, written in the first person. It is a guide, not something to read out word for word: the bold words are the points to hit. The total talk is about 15--17 minutes. All numbers come from the final project report.
+
+%-------------------------------------------------------------
+\slidenote{1}{Title}{20 s}{%
+Good morning. My name is Purna Chandra Nandigana. Today I will present my project for Machine Learning and Deep Learning: \textbf{unsupervised anomaly detection} in sensor data from an industrial batch-distillation plant.
+
+I will go through the problem, then the \textbf{two phases} of my work, the final result of \textbf{F1 = 0.63} on the competition portal, and what I learned about how reliable that result is.}
+
+%-------------------------------------------------------------
+\slidenote{2}{What problem am I solving?}{1 min}{%
+The task is to decide, \textbf{for every single timestep}, whether the plant is behaving normally or not. There are 18 sensors, recorded once per second.
+
+The hard part is the labels. The \textbf{28 training runs have no labels at all}. Only 10 validation runs tell me which timesteps are anomalous, and the 53 test runs are scored externally on Codabench with binary F1.
+
+So I cannot train a normal classifier, because there are no anomalies to learn from. Instead I use \textbf{novelty detection}: the model learns what normal behaviour looks like, and anything that departs from it is flagged.}
+
+%-------------------------------------------------------------
+\slidenote{3}{What does the data look like?}{50 s}{%
+Here are the three splits. Training is about 190{,}000 timesteps, validation about 80{,}000, and test about 316{,}000.
+
+Two points matter for everything that follows. First, the anomaly rate \textbf{varies enormously between runs}: one validation run is under 1\% anomalous, another is 81\%. Second, there is \textbf{no separate labelled test set}. The same 10 runs are used to tune the model and to measure it. I will come back to what that means at the end.}
+
+%-------------------------------------------------------------
+\slidenote{4}{Phase 1: Where did I start?}{1 min}{%
+Phase 1 started with two things. The first baseline was an \textbf{Isolation Forest} on 216 hand-built tabular features. It reached a validation F1 of \textbf{0.437}.
+
+The first deep model was a \textbf{hybrid}, shown on the right: a shallow CNN autoencoder and a window-based Isolation Forest, fused with fixed weights of 0.85 and 0.15.
+
+This hybrid had a reported F1 of about 0.62, but that number was measured on \textbf{window-level labels} and I could not reproduce it from any saved output. So I treat it as historical, not as a real baseline.}
+
+%-------------------------------------------------------------
+\slidenote{5}{Phase 1: What did I have to fix first?}{1 min 10 s}{%
+When I rebuilt the notebooks into one clean pipeline, I found \textbf{six correctness bugs}. For example, windows crossed the boundary between two different runs, the threshold was taken from the wrong index, and scoring was done per window even though the task is per timestep. The training length had also silently dropped from 50 to 10 epochs.
+
+After fixing all six, the hybrid reached a validation F1 of \textbf{0.494}, and on the portal it scored \textbf{0.399 public and 0.471 private}.
+
+This is lower than the old 0.62, but it is the \textbf{first number I could trust}. Without this step, every later comparison would have been meaningless.}
+
+%-------------------------------------------------------------
+\slidenote{6}{Phase 1: How did the autoencoder improve?}{1 min 10 s}{%
+Next I improved the autoencoder itself in two rounds.
+
+In \textbf{Round 2} I added checkpoint selection: training loss kept falling, but validation quality did not, so I keep the best epoch instead of the last one. F1 went from 0.408 to 0.458.
+
+In \textbf{Round 3} I switched to a \textbf{dilated architecture}, so the model sees 61 timesteps of context. F1 rose to 0.484.
+
+But look at the \textbf{ROC-AUC column}: it stayed around 0.6. ROC-AUC measures how well the score \emph{ranks} anomalies, independent of any threshold. So the F1 gains came mostly from where the threshold sat, and the threshold was flagging up to 89\% of timesteps. That told me the \textbf{score itself was the bottleneck}, which is what Phase 2 addresses.}
+
+%-------------------------------------------------------------
+\slidenote{7}{Phase 2: How does the final pipeline work?}{1 min}{%
+This is the final pipeline, top to bottom.
+
+The data is standardised using statistics from the training runs only. Each run is cut into windows of 200 timesteps by 18 sensors, and windows never cross from one run into another. The \textbf{dilated CNN autoencoder} reconstructs each window.
+
+The two new parts are in the middle and at the bottom: a \textbf{per-sensor Mahalanobis score} instead of a flat error, and an \textbf{F$_{0.5}$ threshold} instead of F1. The network is the same as at the end of Phase 1; what changed is how its output becomes a decision.}
+
+%-------------------------------------------------------------
+\slidenote{8}{Phase 2: How does the CNN autoencoder learn normal behaviour?}{1 min}{%
+The autoencoder takes a window of 200 timesteps and 18 sensors. The \textbf{encoder} has four dilated residual blocks with dilations 1, 2, 4 and 8, followed by max-pooling, which halves the time dimension. The \textbf{decoder} upsamples again and outputs a reconstruction of the same shape.
+
+It is trained only on the unlabelled training windows, with mean squared error and Adam, for 50 epochs.
+
+The key idea is the \textbf{bottleneck}: the model cannot just copy its input, so it learns to reconstruct \emph{normal} patterns well. When something abnormal happens, the reconstruction is worse, and that error is the signal. The whole model has about \textbf{60{,}000 parameters}.}
+
+%-------------------------------------------------------------
+\slidenote{9}{Phase 2: How is the anomaly score calculated?}{1 min 20 s}{%
+This is the most important slide. Before, I averaged the reconstruction error over all 18 sensors into one number. The problem is that a \textbf{spike on one precise sensor gets diluted} by ordinary noise on the other 17.
+
+Now I keep \textbf{one error value per sensor}, an 18-dimensional vector. I fit a Gaussian model of what this vector looks like in normal windows, and score each window by its \textbf{Mahalanobis distance} from that normal model. This weights each sensor by its own normal error level and accounts for correlations between sensors. The covariance is estimated with Ledoit--Wolf shrinkage for stability.
+
+Finally, every timestep gets the average score of all windows that contain it.}
+
+%-------------------------------------------------------------
+\slidenote{10}{Phase 2: How is the decision boundary selected?}{50 s}{%
+To turn scores into 0 or 1, I use the validation data. Every score is a candidate threshold; for each one I compute the \textbf{F$_{0.5}$ score}, and I keep the best. The chosen threshold is about 43.3.
+
+Why F$_{0.5}$ and not F1? Because F$_{0.5}$ \textbf{weights precision more than recall}. In Phase 1 the F1-optimal threshold flagged most of the data. F$_{0.5}$ keeps the model from simply calling everything an anomaly.}
+
+%-------------------------------------------------------------
+\slidenote{11}{Phase 2: Did the new score help?}{1 min}{%
+Yes, clearly. With the same network, F1 went from 0.484 to \textbf{0.581}, and more importantly \textbf{ROC-AUC went from 0.605 to 0.768}.
+
+Because ROC-AUC does not depend on the threshold, this jump means the model is genuinely better at separating anomalies from normal data. The share of flagged timesteps also dropped from 89\% to 22\%, close to the true rate of 24\%.
+
+One honest caveat: the scoring and the threshold changed in the same round, so the F1 gain mixes both. The ROC-AUC gain belongs to the scoring change alone. On the portal this round scored \textbf{0.59}.}
+
+%-------------------------------------------------------------
+\slidenote{12}{Phase 2: Did fusion with LOF help?}{1 min}{%
+I then asked whether a second detector could still add something. My teammate contributed a \textbf{Local Outlier Factor} detector on cross-sensor features, and I fused it with the CNN.
+
+To avoid fooling myself, the fusion weight was chosen with \textbf{5-fold cross-validation grouped by run}, so no run was used both to pick the weight and to evaluate it.
+
+The result was clear: in \textbf{9 of 10 folds the search chose the CNN alone}, and the hybrid never beat it. So I rejected fusion, and the final model is the CNN autoencoder on its own.}
+
+%-------------------------------------------------------------
+\slidenote{13}{Final Performance Comparison (Test Set)}{1 min}{%
+Here are the portal scores. The Phase 1 hybrid scored 0.399 and 0.471. The new Mahalanobis score brought it to 0.59. The \textbf{final model, the CNN autoencoder alone, scored 0.63}, with validation F1 0.602 and ROC-AUC 0.763.
+
+I want to be precise about the last step. The move from 0.59 to 0.63 came from a \textbf{new training run of the same method}, not from a new idea. Identical runs differ by about $\pm$0.02 F1. The real improvement between the phases is the \textbf{new scoring method}.}
+
+%-------------------------------------------------------------
+\slidenote{14}{How did performance change across the phases?}{40 s}{%
+This chart summarises the whole story. The blue line is validation F1, the orange line is ROC-AUC.
+
+In \textbf{Phase 1}, on the grey side, F1 climbs slowly, but ROC-AUC stays flat around 0.6. In \textbf{Phase 2}, ROC-AUC jumps to about 0.77. That jump is the moment the model actually became better at ranking anomalies, rather than just having its threshold moved.}
+
+%-------------------------------------------------------------
+\slidenote{15}{How reliable is the final result?}{1 min 20 s}{%
+After the final submission I tested three more ideas on one shared network. An \textbf{F1-optimal threshold} gave +0.024 F1, which is within noise, and it would flag 84\% of the test set. \textbf{Per-run normalisation} damaged the ranking. Fitting the normal model on \textbf{training data} was much worse. None was adopted.
+
+The most important finding is about evaluation. My normal model is fitted on normal windows from the \emph{same} validation runs it then scores. When I refit it on the other nine runs only, \textbf{ROC-AUC drops by 0.07 and F1 by 0.058}. So my validation numbers are \textbf{optimistic}.
+
+I also see that the same threshold flags 24\% of validation but 62\% of test, so the test scores run higher.}
+
+%-------------------------------------------------------------
+\slidenote{16}{What are the key parameters of the final system?}{30 s}{%
+For reference, these are the settings of the final model: windows of 200 with training stride 10, dilations 1 to 8, batch size 64, learning rate $10^{-3}$ for 50 epochs, Mahalanobis scoring with Ledoit--Wolf covariance, and an F$_{0.5}$ threshold of about 43.3.
+
+The main message is that the settings that mattered most were \textbf{how the error is scored and how the threshold is chosen}, not the size of the network.}
+
+%-------------------------------------------------------------
+\slidenote{17}{Summary \& Next Steps}{1 min}{%
+To summarise: my final model is a \textbf{dilated CNN autoencoder with per-sensor Mahalanobis scoring} and an F$_{0.5}$ threshold. It reached \textbf{F1 = 0.63 on the portal}.
+
+The key step was Phase 2's new score, which raised ROC-AUC from 0.605 to 0.768.
+
+Next, I would use \textbf{leave-one-run-out validation for every tuning step}, confirm exactly how the portal computes F1, and average several training seeds to reduce run-to-run noise.
+
+My final message: \textbf{how the model's error is scored mattered more than how big the model is.} Thank you, I am happy to take questions.}
+
+%-------------------------------------------------------------
+\section{Possible Questions and Short Answers}
+\begin{description}[leftmargin=0pt, itemsep=0.5em]
+\item[Why not a supervised model?] The training runs have no labels, and only 10 runs are labelled. Those are needed for tuning and evaluation, so there is nothing left to train a classifier on.
+\item[Why is the portal score (0.63) higher than validation (0.60)?] The two are measured on different data, and the portal's exact F1 aggregation and the test anomaly rate are not known. I do not read the higher portal score as proof that the model generalises well; my leave-one-run-out test suggests validation is, if anything, optimistic.
+\item[Is 0.59 to 0.63 an improvement of the method?] No. It is a new training run of the same method. Runs of the same configuration differ by about $\pm$0.02 F1.
+\item[Why does Mahalanobis scoring help?] It judges each sensor against its own normal error level and accounts for correlations, so a spike on one precise sensor is not averaged away by noise on the others.
+\item[Why F$_{0.5}$ instead of F1?] The F1-optimal threshold flagged most of the data. F$_{0.5}$ favours precision and keeps the flagged share close to the true anomaly rate.
+\item[What would you do next?] Use leave-one-run-out validation for all tuning, confirm the portal metric, and average several training seeds.
+\end{description}
+
+\end{document}
